@@ -150,16 +150,16 @@ def build_db(input_fasta, output, tm_vec_model, protrans_model, cache_dir,
           "Only required if model is supposed to be run on a computer without "
           "internet access."))
 @click.option("--output-embeddings",
-              type=Path,
-              default=None,
-              help="Output path for the query embeddings.")
+              is_flag=True,
+              default=False,
+              help=("If this flag is set, then embeddings will be saved "
+                    "in the output directory."))
 @click.option("--output-fmt",
               type=str,
               required=False,
               default='npz',
               help=("Output format of the results. "
-                    "Options include `npz` or `skbio`")
-              )
+                    "Options include `npz` or `skbio`"))
 @click.option("--k-nearest",
               type=int,
               default=5,
@@ -183,9 +183,9 @@ def build_db(input_fasta, output, tm_vec_model, protrans_model, cache_dir,
               help=("If this flag is set, then the model will only "
                     "use local files. This is useful for running the "
                     "script on a machine without internet access."))
-def search(input_fasta, database, output, output_embeddings, output_fmt, protrans_model,
-           k_nearest, tm_vec_model, deepblast_model, alignment_mode, cache_dir,
-           local):
+def search(input_fasta, database, output, output_embeddings, output_fmt,
+           protrans_model, k_nearest, tm_vec_model, deepblast_model,
+           alignment_mode, cache_dir, local):
     """
     Search for similar proteins in a database using TM-Vec embeddings and align them with DeepBLAST.
     """
@@ -278,8 +278,9 @@ def search(input_fasta, database, output, output_embeddings, output_fmt, protran
     # save tabular
     save_results(values, near_ids, target_headers, output / "results.tsv")
 
+    output_embeddings = output / "embeddings"
     if output_embeddings:
-        save_embeddings(queries, output_embeddings, output_fmt)
+        save_embeddings(seqs, queries, output_embeddings, output_fmt)
 
 
 if __name__ == '__main__':
